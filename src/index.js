@@ -21,8 +21,9 @@ refs.searchForm.addEventListener('submit', onFormSubmit);
 
 function onFormSubmit(e) {
   e.preventDefault();
+  const currentQuery = e.currentTarget.elements.searchQuery.value.trim();
 
-  if (e.currentTarget.elements.searchQuery.value === '') {
+  if (currentQuery === '') {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
@@ -31,10 +32,10 @@ function onFormSubmit(e) {
     return;
   }
 
-  if (pixabayApi.query !== e.currentTarget.elements.searchQuery.value) {
+  if (currentQuery !== pixabayApi.query) {
     pixabayApi.resetPage();
     refs.gallery.innerHTML = '';
-    pixabayApi.query = e.currentTarget.elements.searchQuery.value;
+    pixabayApi.query = currentQuery;
     handleImageLoading().then(() => {
       if (pixabayApi.isOk) {
         Notiflix.Notify.success(
