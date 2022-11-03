@@ -10,7 +10,7 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
   captionsData: 'alt',
 });
-const onWindowScroll = throttle(handleScroll, 500);
+const onWindowScroll = throttle(handleScroll, 300);
 
 const refs = {
   searchForm: document.querySelector('.search-form'),
