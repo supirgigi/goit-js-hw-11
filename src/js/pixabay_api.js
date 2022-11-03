@@ -10,10 +10,18 @@ export default class PixabayApi {
 
   async getImages() {
     const URL = 'https://pixabay.com/api/';
-    const API_KEY = '31020043-5974e05673a68c0f99ec39a84';
-    const url = `${URL}?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=40';`;
 
-    const { data } = await axios.get(url);
+    const params = {
+      key: '31020043-5974e05673a68c0f99ec39a84',
+      q: this.searchQuery,
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: true,
+      page: this.page,
+      per_page: 40,
+    };
+
+    const { data } = await axios.get(URL, { params });
     return data;
   }
 
