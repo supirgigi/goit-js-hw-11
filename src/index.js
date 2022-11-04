@@ -37,6 +37,7 @@ function onFormSubmit(e) {
     refs.loadBtn.classList.add('is-hidden');
     refs.gallery.innerHTML = '';
     pixabayApi.resetPage();
+    pixabayApi.resetRenderedImages();
     pixabayApi.query = currentQuery;
   }
 
@@ -45,7 +46,16 @@ function onFormSubmit(e) {
 
 async function handleImageLoading() {
   try {
+    if (pixabayApi.RenderedImages > 500) {
+      Notiflix.Notify.failure(
+        "We're sorry, but you've reached the end of search results."
+      );
+      return;
+    }
+
     const data = await pixabayApi.getImages();
+
+    pixabayApi.RenderedImages += data.hits.length;
 
     if (data.totalHits === 0) {
       Notiflix.Notify.failure(
