@@ -5,7 +5,6 @@ export default class PixabayApi {
     this.searchQuery = '';
     this.page = 1;
     this.perPage = 40;
-    this.RenderedImages = 0;
   }
 
   async getImages() {
@@ -22,10 +21,6 @@ export default class PixabayApi {
 
   resetPage() {
     this.page = 1;
-  }
-
-  resetRenderedImages() {
-    this.RenderedImages = 0;
   }
 
   get query() {

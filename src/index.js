@@ -27,54 +27,39 @@ function onFormSubmit(e) {
     .toLowerCase();
 
   if (currentQuery === '') {
-    Notiflix.Notify.failure(
-      'Sorry, there are no images matching your search query. Please try again.'
-    );
+    onSearchFailureNotify();
     return;
   }
 
   if (currentQuery !== pixabayApi.query) {
     refs.loadBtn.classList.add('is-hidden');
-    refs.gallery.innerHTML = '';
-    pixabayApi.resetPage();
-    pixabayApi.resetRenderedImages();
     pixabayApi.query = currentQuery;
   }
 
+  pixabayApi.resetPage();
+  refs.gallery.innerHTML = '';
   handleImageLoading();
 }
 
 async function handleImageLoading() {
   try {
-    if (pixabayApi.RenderedImages > 500) {
-      Notiflix.Notify.failure(
-        "We're sorry, but you've reached the end of search results."
-      );
-      return;
-    }
-
     const data = await pixabayApi.getImages();
 
-    pixabayApi.RenderedImages += data.hits.length;
-
     if (data.totalHits === 0) {
-      Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
+      onSearchFailureNotify();
       return;
     }
 
     if (pixabayApi.page === 1) {
-      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+      onSuccessNotify(data);
       refs.loadBtn.classList.remove('is-hidden');
     }
 
     if (data.totalHits < pixabayApi.perPage * pixabayApi.page) {
       refs.loadBtn.classList.add('is-hidden');
-      if (pixabayApi.page !== 1)
-        Notiflix.Notify.failure(
-          "We're sorry, but you've reached the end of search results."
-        );
+      if (pixabayApi.page !== 1) {
+        onReachedResultsEndNotify();
+      }
     }
 
     pixabayApi.incrementPage();
@@ -83,6 +68,22 @@ async function handleImageLoading() {
   } catch (error) {
     Notiflix.Notify.failure(error.message);
   }
+}
+
+function onSuccessNotify(data) {
+  Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+}
+
+function onSearchFailureNotify() {
+  Notiflix.Notify.failure(
+    'Sorry, there are no images matching your search query. Please try again.'
+  );
+}
+
+function onReachedResultsEndNotify() {
+  Notiflix.Notify.failure(
+    "We're sorry, but you've reached the end of search results."
+  );
 }
 
 function dataRender(data) {
