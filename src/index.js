@@ -1,5 +1,4 @@
 import PixabayApi from './js/pixabay_api';
-import throttle from 'lodash.throttle';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 
@@ -10,42 +9,38 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
   captionsData: 'alt',
 });
-const onWindowScroll = throttle(handleScroll, 300);
 
 const refs = {
   searchForm: document.querySelector('.search-form'),
   gallery: document.querySelector('.gallery'),
+  loadBtn: document.querySelector('.load-more'),
 };
 
 refs.searchForm.addEventListener('submit', onFormSubmit);
+refs.loadBtn.addEventListener('click', handleImageLoading);
 
 function onFormSubmit(e) {
   e.preventDefault();
-  const currentQuery = e.currentTarget.elements.searchQuery.value.trim();
+
+  const currentQuery = e.currentTarget.elements.searchQuery.value
+    .trim()
+    .toLowerCase();
 
   if (currentQuery === '') {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
-
-    pixabayApi.isOk = false;
     return;
   }
 
   if (currentQuery !== pixabayApi.query) {
-    pixabayApi.resetPage();
+    refs.loadBtn.classList.add('is-hidden');
     refs.gallery.innerHTML = '';
+    pixabayApi.resetPage();
     pixabayApi.query = currentQuery;
-    handleImageLoading().then(() => {
-      if (pixabayApi.isOk) {
-        Notiflix.Notify.success(
-          `Hooray! We found ${pixabayApi.totalHits} images.`
-        );
-      }
-    });
-  } else {
-    handleImageLoading();
   }
+
+  handleImageLoading();
 }
 
 async function handleImageLoading() {
@@ -56,28 +51,25 @@ async function handleImageLoading() {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
-
-      pixabayApi.isOk = false;
       return;
     }
 
-    if (data.hits.length === 0) {
-      Notiflix.Notify.failure(
-        "We're sorry, but you've reached the end of search results."
-      );
-
-      window.removeEventListener('scroll', onWindowScroll);
-
-      pixabayApi.isOk = false;
-      return;
+    if (pixabayApi.page === 1) {
+      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+      refs.loadBtn.classList.remove('is-hidden');
     }
 
-    pixabayApi.totalHits = data.totalHits;
-    pixabayApi.isOk = true;
+    if (data.totalHits < pixabayApi.perPage * pixabayApi.page) {
+      refs.loadBtn.classList.add('is-hidden');
+      if (pixabayApi.page !== 1)
+        Notiflix.Notify.failure(
+          "We're sorry, but you've reached the end of search results."
+        );
+    }
+
     pixabayApi.incrementPage();
     dataRender(data.hits);
     lightbox.refresh();
-    window.addEventListener('scroll', onWindowScroll);
   } catch (error) {
     Notiflix.Notify.failure(error.message);
   }
@@ -121,20 +113,4 @@ function createPhotoCardsMarkup({
       </p>
     </div>
   </div>`;
-}
-
-function handleScroll() {
-  const height = document.body.offsetHeight;
-  const screenHeight = window.innerHeight;
-  const scrolled = window.scrollY;
-  const threshold = height - screenHeight / 4;
-  const position = scrolled + screenHeight;
-
-  if (position >= threshold) {
-    if (pixabayApi.page === 1) {
-      return;
-    }
-
-    handleImageLoading();
-  }
 }

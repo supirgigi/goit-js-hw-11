@@ -47,6 +47,25 @@
   text-align: center;
 }
 
+.load-more {
+  border: none;
+  background-color: rgb(0, 71, 71);
+  padding: 10px 20px;
+  display: block;
+  margin: 0 auto;
+  color: white;
+  border-radius: 15px;
+
+  &:hover,
+  &:focus {
+    background-color: rgba(0, 71, 71, 0.7);
+  }
+}
+
+.is-hidden {
+  display: none;
+}
+
 @media screen and (min-width: 360px) {
   .container {
     width: 360px;

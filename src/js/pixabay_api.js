@@ -4,24 +4,14 @@ export default class PixabayApi {
   constructor() {
     this.searchQuery = '';
     this.page = 1;
-    this.totalHits = 0;
-    this.isOk = false;
+    this.perPage = 40;
   }
 
   async getImages() {
-    const URL = 'https://pixabay.com/api/';
-
-    const params = {
-      key: '31020043-5974e05673a68c0f99ec39a84',
-      q: this.searchQuery,
-      image_type: 'photo',
-      orientation: 'horizontal',
-      safesearch: true,
-      page: this.page,
-      per_page: 40,
-    };
-
-    const { data } = await axios.get(URL, { params });
+    const URL = 'https://pixabay.com/api';
+    const API_KEY = '31094402-9b49d62cc201a31f5dc4dc039';
+    const url = `${URL}/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${this.perPage}&page=${this.page}`;
+    const { data } = await axios.get(url);
     return data;
   }
 
