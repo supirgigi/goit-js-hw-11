@@ -17,7 +17,7 @@ const refs = {
 };
 
 refs.searchForm.addEventListener('submit', onFormSubmit);
-refs.loadBtn.addEventListener('click', handleImageLoading);
+refs.loadBtn.addEventListener('click', onLoadBtnClick);
 
 function onFormSubmit(e) {
   e.preventDefault();
@@ -31,14 +31,19 @@ function onFormSubmit(e) {
     return;
   }
 
+  refs.loadBtn.classList.add('is-hidden');
+
   if (currentQuery !== pixabayApi.query) {
-    refs.loadBtn.classList.add('is-hidden');
     pixabayApi.query = currentQuery;
   }
 
   pixabayApi.resetPage();
   refs.gallery.innerHTML = '';
   handleImageLoading();
+}
+
+function onLoadBtnClick() {
+  handleImageLoading().then(smoothScroll);
 }
 
 async function handleImageLoading() {
@@ -124,4 +129,15 @@ function createPhotoCardsMarkup({
       </p>
     </div>
   </div>`;
+}
+
+function smoothScroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
